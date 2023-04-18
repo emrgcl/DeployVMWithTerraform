@@ -1,0 +1,99 @@
+name: "Terraform"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.2
+
+      - name: Terraform Initialize
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Save Terraform Plan JSON
+        run: terraform show -json tfplan > tfplan.json
+
+      - name: Setup PowerShell
+        uses: actions/setup-powershell@v1
+
+      - name: Parse Terraform Plan and Update Approval Description
+        shell: pwsh
+        run: |
+          $json = Get-Content -Raw -Path "tfplan.json" | ConvertFrom-Json
+          $markdownTable = @"
+          | Operation | Resource Type | Resource Name | Attribute | Old Value | New Value |
+          | --------- | ------------- | ------------- | --------- | --------- | --------- |
+          "@
+
+          foreach ($resourceChange in $json.resource_changes) {
+              $operation = $resourceChange.change.actions[0]
+              $resourceType = $resourceChange.type
+              $resourceName = $resourceChange.name
+
+              if ($operation -eq "no-op") { continue }
+
+              $before = $resourceChange.change.before
+              $after = $resourceChange.change.after
+
+              if ($before -and $after) {
+                  $beforeProperties = $before.PSObject.Properties
+                  $afterProperties = $after.PSObject.Properties
+
+                  foreach ($property in $beforeProperties) {
+                      $propertyName = $property.Name
+                      $oldValue = $property.Value
+                      $newValue = $after.$propertyName
+
+                      if ($oldValue -ne $newValue) {
+                          $markdownTable += "| $($operation) | $($resourceType) | $($resourceName) | $($propertyName) | $($oldValue) | $($newValue) |`r`n"
+                      }
+                  }
+              } else {
+                  $changedAttributes = if ($before) { $before.PSObject.Properties } else { $after.PSObject.Properties }
+
+                  foreach ($property in $changedAttributes) {
+                      $propertyName = $property.Name
+                      $oldValue = if ($before) { $property.Value } else { "N/A" }
+                      $newValue = if ($after) { $property.Value } else { "N/A" }
+
+                      $markdownTable += "| $($operation) | $($resourceType) | $($resourceName) | $($propertyName) | $($oldValue) | $($newValue) |`r`n"
+                  }
+              }
+          }
+
+          $token = "${{ secrets.GH_TOKEN }}"
+          $repoOwner = "your_github_username"
+          $repoName = "your_repository_name"
+          $workflowRunId = "${{ github.run_id }}"
+          $approvalId = "your_approval_id"
+          $apiUrl = "https://api.github.com/repos/$repoOwner/$repoName/actions/runs/$workflowRunId/approval_requests/$approvalId"
+
+          $headers = @{
+              "Accept" = "application/vnd.github+json"
+              "Authorization" = "Bearer $token"
+          }
+
+          $body = @{
+              "description" = $markdownTable
+          } | ConvertTo-Json
+
+          Invoke-RestMethod -Method Patch -Uri $apiUrl -Headers $headers -Body $body -ContentType "application/json"
+
+      - name: Terraform Apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
