@@ -1,6 +1,7 @@
 param (
     [string]$tenantId,
     [string]$subscriptionId,
+    [string]$resourceGroupName,
     [string]$githubToken,
     [string]$githubOwner,
     [string]$githubRepo
@@ -13,8 +14,11 @@ Connect-AzAccount -TenantId $tenantId -SubscriptionId $subscriptionId
 $spName = "GitHub-Actions-SPN"
 $sp = New-AzADServicePrincipal -DisplayName $spName -SkipAssignment
 
-# Assign the "Contributor" role to the Service Principal
-New-AzRoleAssignment -ObjectId $sp.ObjectId -RoleDefinitionName "Contributor"
+# Retrieve the resource group
+$resourceGroup = Get-AzResourceGroup -Name $resourceGroupName
+
+# Assign the "Contributor" role to the Service Principal on the resource group
+New-AzRoleAssignment -ObjectId $sp.ObjectId -RoleDefinitionName "Contributor" -ResourceGroupName $resourceGroupName -Scope $resourceGroup.ResourceId
 
 # Retrieve the required values
 $azureClientId = $sp.ApplicationId
