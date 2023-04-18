@@ -12,7 +12,10 @@ This repository contains a Terraform configuration for deploying an Ubuntu virtu
 ## Repository structure
 
 The repository is organized as follows:
-`|- .github
+
+<div>
+<pre>
+|- .github
 |- Workflows
     |- terraform_deploy.yml
 |- src
@@ -22,8 +25,9 @@ The repository is organized as follows:
 |- util
     |- tree.ps1
     |- DirectoryStructure.txt
-|- README.md`
-
+|- README.md
+</pre>
+</div>
 ## Files
 
 - `main.tf`: Contains the Terraform configuration to deploy an Ubuntu VM on Azure with an existing virtual network.
