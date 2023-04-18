@@ -13,14 +13,19 @@ This repository contains a Terraform configuration for deploying an Ubuntu virtu
 
 The repository is organized as follows:
 
-├── .github
-| └── workflows
-│ └─ terraform.yml
-└── src
-|- main.tf
-|- variables.tf
-├─ outputs.tf
-└─ terraform.tfvars
+- .github
+  - Workflows
+    - terraform_deploy.yml
+- src
+  - main.tf
+  - terraform.tfvars
+  - variables.tf
+- util
+  - tree.ps1
+- DirectoryStructure.txt
+- README.md
+
+## Files
 
 - `main.tf`: Contains the Terraform configuration to deploy an Ubuntu VM on Azure with an existing virtual network.
 - `variables.tf`: Defines the input variables used in the Terraform configuration.
