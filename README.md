@@ -12,18 +12,17 @@ This repository contains a Terraform configuration for deploying an Ubuntu virtu
 ## Repository structure
 
 The repository is organized as follows:
-
-- .github
-  - Workflows
-    - terraform_deploy.yml
-- src
-  - main.tf
-  - terraform.tfvars
-  - variables.tf
-- util
-  - tree.ps1
-- DirectoryStructure.txt
-- README.md
+`|- .github
+|- Workflows
+    |- terraform_deploy.yml
+|- src
+    |- main.tf
+    |- terraform.tfvars
+    |- variables.tf
+|- util
+    |- tree.ps1
+    |- DirectoryStructure.txt
+|- README.md`
 
 ## Files
 
