@@ -37,6 +37,10 @@ The repository is organized as follows:
 1. Clone the repository: `git clone https://github.com/emrgcl/DeployVMWithTerraform.git`
 1. Replace the placeholder values in the `terraform.tfvars` file with your desired values. Make sure to use a strong and unique password for the `admin_password` variable. Also, update the existing virtual network name, resource group name, and subnet name to match your existing resources.
 1. Configure your Azure CLI or Azure PowerShell by running `az login` or `Connect-AzAccount`, respectively.
+1. run the powershell script in the util folder to prepare azure and set github secrets.
+   ```PowerShell
+   .\CreateGitHubSecrets.ps1 -tenantId "<TENANT_ID>" -subscriptionId "<SUBSCRIPTION_ID>" -githubToken "<GITHUB_TOKEN>" -githubOwner "<GITHUB_OWNER>" -githubRepo "<GITHUB_REPO>"
+   ```
 1. Initialize Terraform: `terraform init`
 1. Apply the Terraform configuration: `terraform apply`
 1. Add a GitHub Personal Access Token with the `repo` scope as a secret named `GH_TOKEN` in your GitHub repository settings.
