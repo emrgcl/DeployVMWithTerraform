@@ -1,0 +1,13 @@
+
+- .github
+  - Workflows
+    - terraform_deploy.yml
+- src
+  - main.tf
+  - terraform.tfvars
+  - variables.tf
+- util
+  - tree.ps1
+- DirectoryStructure.txt
+- README.md
+
