@@ -15,19 +15,22 @@ The repository is organized as follows:
 
 <div>
 <pre>
-|- .github
-|- Workflows
-    |- terraform_deploy.yml
-|- src
-    |- main.tf
-    |- terraform.tfvars
-    |- variables.tf
-|- util
-    |- tree.ps1
-    |- CreateGitHubSecrets.ps1
-|- README.md
+├─ .github
+│  └─ Workflows
+│     └─ terraform_deploy.yml
+├─ src
+│  ├─ main.tf
+│  └─ variables.tf
+├─ temp
+├─ util
+│  ├─ CreateGitHubSecrets.ps1
+│  └─ tree.ps1
+├─ .gitignore
+├─ DirectoryStructure.txt
+└─ README.md
 </pre>
 </div>
+
 ## Files
 
 - `src/main.tf`: Contains the Terraform configuration to deploy an Ubuntu VM on Azure with an existing virtual network.
@@ -46,6 +49,17 @@ The repository is organized as follows:
 1. run the powershell script in the util folder to prepare azure and set github secrets.
    ```PowerShell
     .\CreateGitHubSecrets.ps1 -tenantId "<TENANT_ID>" -subscriptionId "<SUBSCRIPTION_ID>" -resourceGroupName "<RESOURCE_GROUP_NAME>" -githubToken "<GITHUB_TOKEN>" -githubOwner "<GITHUB_OWNER>" -githubRepo "<GITHUB_REPO>"
+   ```
+1. create a terraform.tfvars file in the src folder with the below content and update the values as required.
+   ```terraform
+   resource_group_name               = "example-rg"
+   location                          = "East US"
+   vm_size                           = "Standard_B1s"
+   admin_username                    = "adminuser"
+   admin_password                    = "P@ssw0rd1234!"
+   virtual_network_name              = "existing-vnet"
+   virtual_network_resource_group_name = "existing-vnet-rg"
+   subnet_name                       = "existing-subnet"
    ```
 1. Initialize Terraform: `terraform init`
 1. Apply the Terraform configuration: `terraform apply`
