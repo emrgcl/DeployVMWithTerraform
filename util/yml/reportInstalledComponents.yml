@@ -1,0 +1,33 @@
+- name: Export component versions
+  run: |
+    components=(
+      "Node.js:node --version"
+      "Python2:python2 --version 2>&1"
+      "Python3:python3 --version"
+      "Ruby:ruby --version"
+      "Java:java --version 2>&1"
+      "Git:git --version"
+      "Docker:docker --version"
+      "dotnet:dotnet --version"
+      "Go:go version"
+    )
+
+    json='['
+
+    for component in "${components[@]}"; do
+      name="${component%%:*}"
+      cmd="${component#*:}"
+      version=$(eval $cmd)
+
+      if [ -z "$version" ]; then
+        echo "Error while getting version for $name"
+        continue
+      fi
+
+      json+="$(printf '{"Name": "%s", "Version": "%s"},' "$name" "$version")"
+    done
+
+    json=${json%,} # Remove trailing comma
+    json+=']'
+
+    echo "$json" > component_versions.json

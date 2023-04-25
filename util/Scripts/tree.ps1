@@ -12,7 +12,7 @@ function Get-AsciiDirectoryStructure {
     $items = Get-ChildItem -Path $DirectoryPath -Force | Where-Object {
         $include = $true
         foreach ($pattern in $gitignorePatterns) {
-            if ($_.FullName -like "*$pattern*" -or $_.Name -eq ".git") {
+            if ($_.Name -eq ".git") {
                 $include = $false
                 break
             }

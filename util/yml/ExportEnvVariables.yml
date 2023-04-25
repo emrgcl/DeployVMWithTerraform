@@ -1,0 +1,41 @@
+name: Export Environment Variables
+
+on: [push]
+
+jobs:
+  export_variables:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup PowerShell
+        uses: actions/setup-powershell@v1
+
+      - name: Create artifacts directory
+        run: mkdir artifacts
+
+      - name: Set environment variables
+        run: |
+          echo "MY_VARIABLE_1=my-value-1" >> $GITHUB_ENV
+          echo "MY_VARIABLE_2=my-value-2" >> $GITHUB_ENV
+          echo "MY_VARIABLE_3=my-value-3" >> $GITHUB_ENV
+
+      - name: Export environment variables to Metadata.json
+        shell: pwsh
+        run: |
+          $variablesToExport = @("MY_VARIABLE_1", "MY_VARIABLE_2", "MY_VARIABLE_3")
+          $metadata = @{}
+
+          foreach ($variable in $variablesToExport) {
+              $metadata[$variable] = (Get-Item "Env:$variable").Value
+          }
+
+          $metadata | ConvertTo-Json | Set-Content -Path "artifacts/Metadata.json"
+
+      - name: Upload Metadata.json as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Metadata
+          path: artifacts/Metadata.json
